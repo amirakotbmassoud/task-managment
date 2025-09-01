@@ -6,19 +6,11 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class TaskRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
-       return true;
+        return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     protected function prepareForValidation()
     {
         $this->merge([
@@ -26,17 +18,29 @@ class TaskRequest extends FormRequest
             'description' => $this->description ? trim($this->description) : null,
         ]);
     }
+
     public function rules(): array
     {
-        return [
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'status' => 'required|in:pending,completed,canceled',
-            'assigned_to' => 'required|exists:users,id',
-            'created_by' => 'required|exists:users,id',
-            'due_date' => 'nullable|date|after_or_equal:today',
-        ];
+        if ($this->isMethod('post')) {
+            return [
+                'title' => 'required|string|max:255',
+                'description' => 'nullable|string',
+                'status' => 'required|in:pending,completed,canceled',
+                'assigned_to' => 'required|exists:users,id',
+                'created_by' => 'required|exists:users,id',
+                'due_date' => 'nullable|date|after_or_equal:today',
+            ];
+        }
+
+        if ($this->isMethod('put') || $this->isMethod('patch')) {
+            return [
+                'status' => 'required|in:pending,completed,canceled',
+            ];
+        }
+
+        return [];
     }
+
     public function messages(): array
     {
         return [
