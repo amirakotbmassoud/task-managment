@@ -91,8 +91,24 @@ Database dump: /database/task-managment.sql
 🐳 Docker (Optional)
 
 If you want to run with Docker:
+# 1) Build and start
 
 docker compose up -d --build
+
+# 2) Run composer if vendor not copied (we already did in Dockerfile, but keep for dev sync)
+docker compose exec app composer install
+
+# 3) Generate app key
+docker compose exec app php artisan key:generate
+
+# 4) Storage symlink (if you store files)
+docker compose exec app php artisan storage:link
+
+# 5) DB migrate + seed (add your seeders for Managers/Users)
+docker compose exec app php artisan migrate --seed
+
+# 6) Cache routes/config (optional for speed in dev)
+docker compose exec app php artisan optimize
 
 
 The app will be available at:
