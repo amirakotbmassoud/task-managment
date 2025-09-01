@@ -31,38 +31,46 @@ return self::success('success','Tasks retrived successfully',$results,200);
 public function creatTask(TaskRequest $task){
     try{
 $validated=$task->validated();
-$results=$this->task->createTask($validated);
+$results=$this->task->createTAsk($validated);
 return self::success('success','Task created successfully',$results,201);
 }catch(\Exception $e){
     return self::error('error',$e->getMessage(),500);
 }
 }
-public function updateTask(TaskRequest $request,$id){
-try{
-    $task=$this->task->findByTaskId($id);
-$validated=$request->validated();
-if(auth()->user()->role==='user'){
-    if($validated['assigned_to'] !==auth()->id()){
-        return self::error('error','Unauthorized',403);
-    }
-    $validated=$request->only(['status']);
-}
-            $validated = $request->validated();
- if (isset($validated['status']) && $validated['status'] === 'completed') {
-            $incompleteDependencies = $task->dependcies()->where('status', '!=', 'completed')->count();
-
-            if ($incompleteDependencies > 0) {
-                return self::error('error', 'Cannot complete task. Some dependencies are not completed.', 400);
+    public function updateTask(TaskRequest $request, $id)
+    {
+        try {
+            $task = $this->task->findByTaskId($id);
+            if (!$task) {
+                return self::error('error', 'Task not found', 404);
             }
-        }
-            $results=$this->task->updateTask($validated,$id);
 
-            return self::success('success','Task updated successfully',$results,200);
-}catch(\Exception $e){
-    return self::error('error',$e->getMessage(),500);
-}
-}
-public function assignTask($task_id,$user_id){
+            $validated = $request->validated();
+
+            if (auth()->user()->role === 'user') {
+                if (isset($validated['assigned_to']) && $validated['assigned_to'] !== auth()->id()) {
+                    return self::error('error', 'Unauthorized', 403);
+                }
+                $validated = $request->only(['status']);
+            }
+
+            if (isset($validated['status']) && $validated['status'] === 'completed') {
+                $incompleteDependencies = $task->dependencies()->where('status', '!=', 'completed')->count();
+
+                if ($incompleteDependencies > 0) {
+                    return self::error('error', 'Cannot complete task. Some dependencies are not completed.', 400);
+                }
+            }
+
+            $results = $this->task->updateTask($validated, $id);
+
+            return self::success('success', 'Task updated successfully', $results, 200);
+        } catch (\Exception $e) {
+            return self::error('error', $e->getMessage(), 500);
+        }
+    }
+
+    public function assignTask($task_id,$user_id){
     try{
 $task=$this->task->assignTask($task_id,$user_id);
 return self::success('success','Task assigned successfully',$task,200);
@@ -90,7 +98,8 @@ return self::success('success','Task assigned successfully',$task,200);
     public function getTaskDetails($id)
     {
         try {
-            return $this->task->getTaskDetails($id);
+            $task = $this->task->getTaskDetails($id);
+            return self::success('success', 'Task details retrieved successfully', $task, 200);
         } catch (\Exception $e) {
             return self::error('error', $e->getMessage(), 500);
         }
