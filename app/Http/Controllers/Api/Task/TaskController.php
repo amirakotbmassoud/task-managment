@@ -42,14 +42,14 @@ try{
     $task=$this->task->findByTaskId($id);
 $validated=$request->validated();
 if(auth()->user()->role==='user'){
-    if($validated->assigned_to !==auth()->id()){
+    if($validated['assigned_to'] !==auth()->id()){
         return self::error('error','Unauthorized',403);
     }
     $validated=$request->only(['status']);
 }
             $validated = $request->validated();
  if (isset($validated['status']) && $validated['status'] === 'completed') {
-            $incompleteDependencies = $task->dependencies()->where('status', '!=', 'completed')->count();
+            $incompleteDependencies = $task->dependcies()->where('status', '!=', 'completed')->count();
 
             if ($incompleteDependencies > 0) {
                 return self::error('error', 'Cannot complete task. Some dependencies are not completed.', 400);

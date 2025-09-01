@@ -7,8 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class Task extends Model
 {
     protected $fillable=['title','description','status','assigned_to','created_by','due_date'];
-    public function dependcies(){
-        return $this->belongsToMany(Task::class,'task_dependencies','task_id');
+    public function dependencies(){
+        return $this->belongsToMany(Task::class,'task_dependencies','task_id', 'dependency_id');
     }
     public function assigns()
     {

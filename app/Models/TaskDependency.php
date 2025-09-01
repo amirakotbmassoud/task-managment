@@ -9,6 +9,6 @@ class TaskDependency extends Model
     //
     public function task ()
     {
-        return $this->belongsToMany(Task::class,'task_id');
+        return $this->belongsToMany(Task::class,'task_id', 'dependency_id');
     }
 }
